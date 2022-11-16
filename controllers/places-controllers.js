@@ -1,9 +1,9 @@
-const {v4:uuidv4}= require('uuid');
 
 const HttpError = require('../models/http-error');
 
 const { validationResult} = require('express-validator');
 const getCoordsForAddress= require('../util/location');
+const Place = require('../models/place');
 
 let INITIAL_DATA = [
     {
@@ -23,8 +23,8 @@ let INITIAL_DATA = [
 
 
 const getPlaceById = (req, res, next) => {
-    const placeId = req.params.pid // Accessing the p1 in pid {pid:'p1'}  
-    const place= INITIAL_DATA.find(p => {
+    const placeId = req.params.pid // Accessing the p1 in pid URL scrapping {pid:'p1'}  
+    const place= INITIAL_DATA.find(p => { //find method goes over each element in the array, the argument p represents the element where find loop is
       return p.id ===placeId
     });
   
@@ -40,7 +40,7 @@ const getPlaceById = (req, res, next) => {
 const getPlacesByCreatorId = (req, res, next)=> {
     const userId = req.params.uid;
 
-    const places = INITIAL_DATA.filter(p=>{
+    const places = INITIAL_DATA.filter(p=>{ //filter to retrieve multiple places, not only the first one
         return p.creator ===userId;
     });
     
@@ -72,16 +72,19 @@ const createPlace = async (req, res, next) => {
     }
     
    
-    const createdPlace = {
-      id: uuidv4(),
+    const createdPlace = new Place({
       title,
       description,
       location: coordinates,
-      address,
       creator
-    };
-  
-    INITIAL_DATA.unshift(createdPlace); 
+    });
+
+    try { 
+      await createdPlace.save();}
+    catch (erro) {
+      const error = new HttpError('Bus stop failed. Please try again.', 500);
+      return next(error);
+    }
   
     res.status(201).json({place: createdPlace});
   };
