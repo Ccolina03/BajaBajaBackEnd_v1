@@ -1,8 +1,8 @@
 
 const HttpError = require('../models/http-error');
 
-const { validationResult} = require('express-validator');
-const getCoordsForAddress= require('../util/location');
+const { validationResult } = require('express-validator');
+//const getCoordsForAddress= require('../util/location');
 const Place = require('../models/place');
 
 let INITIAL_DATA = [
@@ -15,6 +15,7 @@ let INITIAL_DATA = [
             lng:-23.23
         },
         address: "Av. La Molina interseccion con calle Samoa",
+        busrespect: "yes",
         creator: "u1"
         }
 ];
@@ -57,34 +58,40 @@ const createPlace = async (req, res, next) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()){
-        return next(new HttpError ("Invalid inputs passed, please check your data ", 422));
-    };
-
-
-    const { title, description, address, creator } = req.body;
-    
-    let coordinates;
-    try {
-        coordinates= await getCoordsForAddress(address)
-    } 
-    catch (error) { //to prevent function to continue use return
-        return next(error);
+        return next(new HttpError ('Invalid bus stop please check your data', 422));
     }
+
+
+    const { title, description, busrespect, address, creator } = req.body; //erased location for now.
+    //would erase coordinates because would be replaced with the coordinates found using the geocoding API
     
-   
+   // Failed connection with geocoding (will have to update)
+   //let coordinates;
+    //try {
+     //   coordinates= await getCoordsForAddress(address)
+    //} 
+    //catch (error) { //to prevent function to continue use return
+    //   return next(error);
+    //}
+    
     const createdPlace = new Place({
       title,
       description,
-      location: coordinates,
+      address,
+      //location
+      busrespect,
       creator
     });
 
+
+    //First connection to DATABASE
     try { 
       await createdPlace.save();}
-    catch (erro) {
-      const error = new HttpError('Bus stop failed. Please try again.', 500);
+    catch (err) {
+      const error = new HttpError('Bus stop failed. Please try again.', 500
+      );
       return next(error);
-    }
+    } 
   
     res.status(201).json({place: createdPlace});
   };
