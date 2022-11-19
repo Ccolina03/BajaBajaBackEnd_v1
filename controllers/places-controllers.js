@@ -22,19 +22,23 @@ let INITIAL_DATA = [
         }
 ];
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
     const placeId = req.params.pid // Accessing the p1 in pid URL scrapping {pid:'p1'}  
-    const place= INITIAL_DATA.find(p => { //find method goes over each element in the array, the argument p represents the element where find loop is
-      return p.id ===placeId
-    });
-  
+    
+    let place;
+    try {
+      const place= await Place.findById(placeId)
+    } catch (erro) {
+      const error = new HttpError("Could not find the specified bus stop", 500);
+      return next(error);
+    }
+
     if (!place) {
       const error= new HttpError('No bus stop found for the provided ID.', 404);
-      throw error; 
-  
+      return next(error); 
     }
   
-    res.json({place: place});
+    res.json({place: place.toObject({getters:true})});
   };
 
 const getPlacesByCreatorId = (req, res, next)=> {
