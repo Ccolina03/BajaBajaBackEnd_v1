@@ -27,7 +27,7 @@ const getPlaceById = async (req, res, next) => {
     
     let place;
     try {
-      const place= await Place.findById(placeId)
+      place= await BusStop.findById(placeId)
     } catch (erro) {
       const error = new HttpError("Could not find the specified bus stop", 500);
       return next(error);
@@ -35,26 +35,30 @@ const getPlaceById = async (req, res, next) => {
 
     if (!place) {
       const error= new HttpError('No bus stop found for the provided ID.', 404);
+      console.error(place)
       return next(error); 
     }
   
-    res.json({place: place.toObject({getters:true})});
+    res.json({place: place.toObject({getters: true })});
   };
 
-const getPlacesByCreatorId = (req, res, next)=> {
-    const userId = req.params.uid;
-
-    const places = INITIAL_DATA.filter(p=>{ //filter to retrieve multiple places, not only the first one
-        return p.creator ===userId;
-    });
+const getPlacesByCreatorId = async (req, res, next)=> {
+    const creatorId = req.params.uid;
     
+    let places;
+    try {
+      places = await BusStop.find({creator: creatorId})
+    } catch (erro) {
+      const error = new HttpError("Could not find the specified creatorId", 500);
+      return next(error);
+    }
     if (!places || places.length===0) {
         return next(
           new HttpError('Could not find bus stops for the provide user id', 404)
           );
     }
 
-    res.json({places});
+    res.json({places: places.map(busstop => busstop.toObject({getters:true}))});
 };
 
 const createPlace = async (req, res, next) => {

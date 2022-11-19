@@ -33,7 +33,7 @@ url = 'mongodb+srv://Ccolina03:carlos0102@cluster0.8iyrogp.mongodb.net/?retryWri
 
 mongoose.connect(url, {useNewUrlParser: true}).then(()=>{
     console.log("Connected to database")
-    app.listen(4000);
+    app.listen(5000);
 }).catch(erro => {
     console.log(erro)
 });
