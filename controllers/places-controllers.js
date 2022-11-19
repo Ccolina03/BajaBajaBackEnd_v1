@@ -25,40 +25,40 @@ let INITIAL_DATA = [
 const getPlaceById = async (req, res, next) => {
     const placeId = req.params.pid // Accessing the p1 in pid URL scrapping {pid:'p1'}  
     
-    let place;
+    let bus_stop;
     try {
-      place= await BusStop.findById(placeId)
+      bus_stop= await BusStop.findById(placeId)
     } catch (erro) {
       const error = new HttpError("Could not find the specified bus stop", 500);
       return next(error);
     }
 
-    if (!place) {
+    if (!bus_stop) {
       const error= new HttpError('No bus stop found for the provided ID.', 404);
-      console.error(place)
+      console.error(bus_stop)
       return next(error); 
     }
   
-    res.json({place: place.toObject({getters: true })});
+    res.json({bus_stop: bus_stop.toObject({getters: true })});
   };
 
 const getPlacesByCreatorId = async (req, res, next)=> {
     const creatorId = req.params.uid;
     
-    let places;
+    let bus_stop;
     try {
-      places = await BusStop.find({creator: creatorId})
+      bus_stop = await BusStop.find({creator: creatorId})
     } catch (erro) {
       const error = new HttpError("Could not find the specified creatorId", 500);
       return next(error);
     }
-    if (!places || places.length===0) {
+    if (!bus_stop || bus_stop.length===0) {
         return next(
           new HttpError('Could not find bus stops for the provide user id', 404)
           );
     }
 
-    res.json({places: places.map(busstop => busstop.toObject({getters:true}))});
+    res.json({bus_stop: bus_stop.map(busstop => busstop.toObject({getters:true}))});
 };
 
 const createPlace = async (req, res, next) => {
@@ -68,14 +68,14 @@ const createPlace = async (req, res, next) => {
     }
     const { title, description, busrespect, address, creator } = req.body;
      try {
-        const createdPlace= await BusStop.create({
+        const createdbusstop= await BusStop.create({
          title:title,
          description: description,
          busrespect:busrespect,
          address: address,
          creator: creator
        });
-       res.send({place: createdPlace});
+       res.send({bus_stop: createdbusstop});
      } catch(error) {
       console.error(error);
        res.send({status:"error caught"});
@@ -93,7 +93,7 @@ const createPlace = async (req, res, next) => {
     //   return next(error);
     //
 
-  const updatePlace = (req, res, next) => {
+  const updatePlace = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()){
         console.log(errors);
@@ -103,14 +103,24 @@ const createPlace = async (req, res, next) => {
     const { title, description } = req.body;
     const placeId = req.params.pid;
   
-    const updatedPlace = { ...INITIAL_DATA.find(p => p.id === placeId)};
-    const placeIndex = INITIAL_DATA.findIndex(p => p.id === placeId);
-    updatedPlace.title = title;
-    updatedPlace.description = description;
+    let bus_stop;
+    try {
+      bus_stop = await BusStop.findById(placeId)
+    } catch (erro) {
+      const error = new HttpError("Updating bus stop is not possible. Try again later.", 500);
+      return next(error);
+    }
+
+    bus_stop.title = title
+    bus_stop.description = description;
+
+    try {await bus_stop.save();
+    } catch (erro) {
+      const error = new HttpError("Failure saving the document in the database. Verify connection.", 500);
+      return next(error);
+    }
   
-    INITIAL_DATA[placeIndex] = updatedPlace;
-  
-    res.status(200).json({place: updatedPlace});
+    res.status(200).json({bus_stop: bus_stop.toObject({getters:true})});
   };
 
 const deletePlace = (req, res, next) => {
