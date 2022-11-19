@@ -3,16 +3,24 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const placeSchema = new Schema({
-    title: {type: String, required: true},
-    description: {type: String, required: true},
-    address: {type: String, required: true}, 
-   // location: {                                 #Adding location feature later. 
-     //   lat: {type: Number, required: true},
-      //  lng: {type: Number, required: true}
-    //},
-    busrespect: {type: String, required: true},
-    creator: {type: String, required: true}
-});
+    title: {
+      type: String
+    },
+    description: {
+      type: String
+    },
+    address: {
+      type: String
+    }, 
+    busrespect: {
+      type: String
+    },
+    creator: {
+      type: String
+    }
+}
+);
 
+const BusStop = mongoose.model('BusStop', placeSchema)
 
-module.exports = mongoose.model('Place', placeSchema);
+module.exports= BusStop

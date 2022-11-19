@@ -1,27 +1,26 @@
-
+const {v4:uuidv4}= require('uuid');
 const HttpError = require('../models/http-error');
+const express= require ('express');
 
 const { validationResult } = require('express-validator');
 //const getCoordsForAddress= require('../util/location');
-const Place = require('../models/place');
+const BusStop = require('../models/place');
+
 
 let INITIAL_DATA = [
     {
         id: "p1",
         title: "Samoa Stop",
         description: "My first bus stop in Lima",
-        location: {
-            lat: 40.1382,
-            lng:-23.23
-        },
+        //location: {
+           // lat: 40.1382,
+           // lng:-23.23
+       // },
         address: "Av. La Molina interseccion con calle Samoa",
         busrespect: "yes",
         creator: "u1"
         }
 ];
-
-
-
 
 const getPlaceById = (req, res, next) => {
     const placeId = req.params.pid // Accessing the p1 in pid URL scrapping {pid:'p1'}  
@@ -55,14 +54,26 @@ const getPlacesByCreatorId = (req, res, next)=> {
 };
 
 const createPlace = async (req, res, next) => {
-
     const errors = validationResult(req);
     if (!errors.isEmpty()){
         return next(new HttpError ('Invalid bus stop please check your data', 422));
     }
-
-
-    const { title, description, busrespect, address, creator } = req.body; //erased location for now.
+    const { title, description, busrespect, address, creator } = req.body;
+     try {
+        const createdPlace= await BusStop.create({
+         title:title,
+         description: description,
+         busrespect:busrespect,
+         address: address,
+         creator: creator
+       });
+       res.send({place: createdPlace});
+     } catch(error) {
+      console.error(error);
+       res.send({status:"error caught"});
+     }
+   };
+  
     //would erase coordinates because would be replaced with the coordinates found using the geocoding API
     
    // Failed connection with geocoding (will have to update)
@@ -72,29 +83,7 @@ const createPlace = async (req, res, next) => {
     //} 
     //catch (error) { //to prevent function to continue use return
     //   return next(error);
-    //}
-    
-    const createdPlace = new Place({
-      title,
-      description,
-      address,
-      //location
-      busrespect,
-      creator
-    });
-
-
-    //First connection to DATABASE
-    try { 
-      await createdPlace.save();}
-    catch (err) {
-      const error = new HttpError('Bus stop failed. Please try again.', 500
-      );
-      return next(error);
-    } 
-  
-    res.status(201).json({place: createdPlace});
-  };
+    //
 
   const updatePlace = (req, res, next) => {
     const errors = validationResult(req);
