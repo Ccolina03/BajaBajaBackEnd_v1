@@ -45,20 +45,20 @@ const getPlaceById = async (req, res, next) => {
 const getPlacesByCreatorId = async (req, res, next)=> {
     const creatorId = req.params.uid;
     
-    let bus_stop;
+    let bus_stops;
     try {
-      bus_stop = await BusStop.find({creator: creatorId})
+      bus_stops = await BusStop.find({creator: creatorId})
     } catch (erro) {
       const error = new HttpError("Could not find the specified creatorId", 500);
       return next(error);
     }
-    if (!bus_stop || bus_stop.length===0) {
+    if (!bus_stops || bus_stops.length===0) {
         return next(
           new HttpError('Could not find bus stops for the provide user id', 404)
           );
     }
 
-    res.json({bus_stop: bus_stop.map(busstop => busstop.toObject({getters:true}))});
+    res.json({bus_stops: bus_stops.map(bus_stops => bus_stops.toObject({getters:true}))});
 };
 
 const createPlace = async (req, res, next) => {
@@ -123,13 +123,24 @@ const createPlace = async (req, res, next) => {
     res.status(200).json({bus_stop: bus_stop.toObject({getters:true})});
   };
 
-const deletePlace = (req, res, next) => {
+const deletePlace = async (req, res, next) => {
     const placeId = req.params.pid;
-    if (!INITIAL_DATA.find(p=> p.id ===placesId))
-       throw new HttpError('Could not find a bus stop for that ID ')
 
-    INITIAL_DATA = INITIAL_DATA.filter(p=> p.id !== placeId)
-    res.status(200).json({message: 'Deleted Place'});
+    let bus_stop;
+    try {
+      bus_stop = await BusStop.findById(placeId)
+    } catch (err) {
+      const error = new HttpError('Bus stop could not be deleted. Try again later. ', 500);
+      return next(error);
+    }
+
+    try { 
+      await bus_stop.remove()
+    } catch (err) {
+      const error = new HttpError('Bus stop could not be deleted in database. Try again later. ', 500);
+      return next(error);
+    }
+    res.status(200).json({message: 'Deleted Bus Stop'});
 };
 
   
