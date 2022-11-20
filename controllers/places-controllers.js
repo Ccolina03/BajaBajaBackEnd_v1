@@ -102,7 +102,7 @@ try {
   await sess.commitTransaction();
 } catch (err) {
   const error = new HttpError(
-    'Creating place failed, please try again.',
+    'Incorrect creatorId. Please try again.',
     500
   );
   return next(error);
@@ -157,21 +157,35 @@ const deletePlace = async (req, res, next) => {
 
     let bus_stop;
     try {
-      bus_stop = await BusStop.findById(placeId)
+      bus_stop = await BusStop.findById(placeId).populate('creator');
     } catch (err) {
       const error = new HttpError('Bus stop could not be deleted. Try again later. ', 500);
       return next(error);
     }
 
-    try { 
-      await bus_stop.remove()
-    } catch (err) {
-      const error = new HttpError('Bus stop could not be deleted in database. Try again later. ', 500);
+    if (!bus_stop) {
+      const error = new HttpError("No bus stop has this id. Try with a different id.", 404);
       return next(error);
     }
-    res.status(200).json({message: 'Deleted Bus Stop'});
-};
 
+    try {
+      const sess = await mongoose.startSession();
+      sess.startTransaction();
+      await BusStop.deleteMany({ session: sess });
+      BusStop.creator.places.pull(BusStop);
+      await BusStop.creator.save({ session: sess });
+      await sess.commitTransaction();
+    } catch (err) {
+      console.error(err)
+      const error = new HttpError(
+        'Something went wrong, could not delete place.',
+        500
+      );
+      return next(error);
+    }
+  
+    res.status(200).json({ message: 'Deleted place.' });
+  };
   
 exports.getPlaceById= getPlaceById;
 exports.getPlacesByCreatorId = getPlacesByCreatorId;

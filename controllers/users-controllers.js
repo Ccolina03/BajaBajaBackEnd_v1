@@ -35,7 +35,7 @@ const signup = async (req, res, next) => {
         new HttpError('Invalid inputs passed, data does not pass the validation tests.', 422)
       );
     }
-    const { name1 , email, password, busrespect} = req.body;
+    const { name1 , email, password} = req.body;
   
     let existingUser;
     try {
@@ -61,7 +61,6 @@ try {
         name1,
         email,
         password, 
-        busrespect,
         places: []
     });        
         

@@ -9,15 +9,12 @@ const userSchema = new Schema({
     email: {
       type: String, required: true, unique: true
     },
-    busrespect: {
-      type: String, required: true, unique: true
-    },
     password: {
       type: String, required: true, minlength: 5
     }, 
 
     places: [{
-      type: mongoose.Types.ObjectId, required: true, ref: 'Place'
+      type: mongoose.Types.ObjectId, required: true, ref: 'BusStop'
     }]
 
     //future busrespect karma which will indicate the amount of busrespect you have indicated.
