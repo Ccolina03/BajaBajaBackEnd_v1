@@ -16,10 +16,10 @@ const placeSchema = new Schema({
       type: String
     },
     creator: {
-      type: String
+      type: mongoose.Types.ObjectId, required: true, ref: 'User'
     }
-}
-);
+},
+)
 
 const BusStop = mongoose.model('BusStop', placeSchema)
 

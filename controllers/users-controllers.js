@@ -13,7 +13,19 @@ const INITIAL_DATA=[
     }
 ]
 
-//const getUser = (req,res,next) => {};
+const getUsers = async (req, res, next) => {
+  let users;
+  try {
+    users = await User.find({}, '-password');
+  } catch (erro) {
+    const error = new HttpError(
+      'Displaying users failed. Try again later.',
+      500
+    );
+    return next(error);
+  }
+  res.json({users: users.map(user => user.toObject({ getters: true }))});
+};
 
 const signup = async (req, res, next) => {
     const errors = validationResult(req);
@@ -23,7 +35,7 @@ const signup = async (req, res, next) => {
         new HttpError('Invalid inputs passed, data does not pass the validation tests.', 422)
       );
     }
-    const { name1 , email, password, places } = req.body;
+    const { name1 , email, password, busrespect} = req.body;
   
     let existingUser;
     try {
@@ -49,7 +61,8 @@ try {
         name1,
         email,
         password, 
-        places
+        busrespect,
+        places: []
     });        
         
     res.status(201).json({user: createdUser.toObject({getters: true})});
@@ -84,6 +97,6 @@ const login = async (req, res, next) => {
     res.json({message:"Logged IN"})
 };
 
-//exports.getUsers= getUsers;
+exports.getUsers= getUsers;
 exports.signup=signup;
 exports.login=login;

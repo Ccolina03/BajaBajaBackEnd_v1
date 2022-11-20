@@ -1,11 +1,12 @@
 const {v4:uuidv4}= require('uuid');
 const HttpError = require('../models/http-error');
 const express= require ('express');
+const mongoose=require('mongoose')
 
 const { validationResult } = require('express-validator');
 //const getCoordsForAddress= require('../util/location');
 const BusStop = require('../models/place');
-
+const User= require('../models/user');
 
 let INITIAL_DATA = [
     {
@@ -68,20 +69,47 @@ const createPlace = async (req, res, next) => {
     }
     const { title, description, busrespect, address, creator } = req.body;
      
-    try {
-        const createdbusstop= await BusStop.create({
-         title:title,
-         description: description,
-         busrespect:busrespect,
-         address: address,
-         creator: creator
-       });
-       res.send({bus_stop: createdbusstop});
-     } catch(error) {
-      console.error(error);
-       res.send({status:"error caught"});
-     }
-   };
+// Initial way of saving in database without too much problem
+const createdPlace = new BusStop({
+  title,
+  description,
+  busrespect,
+  address,
+  creator
+});
+
+let user;
+try {
+  user = await User.findById(creator);
+} catch (err) {
+  const error = new HttpError('Creating place failed, please try again', 500);
+  return next(error);
+}
+
+if (!user) {
+  const error = new HttpError('Could not find user for provided id', 404);
+  return next(error);
+}
+
+console.log(user);
+
+try {
+  const sess = await mongoose.startSession();
+  sess.startTransaction();
+  await createdPlace.save({ session: sess });
+  user.places.push(createdPlace);
+  await user.save({ session: sess });
+  await sess.commitTransaction();
+} catch (err) {
+  const error = new HttpError(
+    'Creating place failed, please try again.',
+    500
+  );
+  return next(error);
+}
+
+res.status(201).json({bus_stop: createdPlace });
+};
   
     //would erase coordinates because would be replaced with the coordinates found using the geocoding API
     
