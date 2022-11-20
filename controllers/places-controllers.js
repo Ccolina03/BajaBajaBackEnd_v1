@@ -8,20 +8,6 @@ const { validationResult } = require('express-validator');
 const BusStop = require('../models/place');
 const User= require('../models/user');
 
-let INITIAL_DATA = [
-    {
-        id: "p1",
-        title: "Samoa Stop",
-        description: "My first bus stop in Lima",
-        //location: {
-           // lat: 40.1382,
-           // lng:-23.23
-       // },
-        address: "Av. La Molina interseccion con calle Samoa",
-        busrespect: "yes",
-        creator: "u1"
-        }
-];
 
 const getPlaceById = async (req, res, next) => {
     const placeId = req.params.pid // Accessing the p1 in pid URL scrapping {pid:'p1'}  
@@ -172,8 +158,8 @@ const deletePlace = async (req, res, next) => {
       const sess = await mongoose.startSession();
       sess.startTransaction();
       await BusStop.deleteMany({ session: sess });
-      BusStop.creator.places.pull(BusStop);
-      await BusStop.creator.save({ session: sess });
+      BusStop.creator.bus_stop.pull(bus_stop);
+      await bus_stop.creator.save({ session: sess });
       await sess.commitTransaction();
     } catch (err) {
       console.error(err)

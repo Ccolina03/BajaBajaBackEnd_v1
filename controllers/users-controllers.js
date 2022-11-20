@@ -3,15 +3,6 @@ const {validationResult}=require('express-validator');
 const HttpError = require("../models/http-error");
 const User = require('../models/user');
 
-const INITIAL_DATA=[
-    {
-        id:'u1',
-        name:"Carlos Colina",
-        email: "cmcolina@ualberta.ca",
-        password: "barcel0na"
-
-    }
-]
 
 const getUsers = async (req, res, next) => {
   let users;
