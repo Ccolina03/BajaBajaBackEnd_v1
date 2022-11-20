@@ -67,7 +67,8 @@ const createPlace = async (req, res, next) => {
         return next(new HttpError ('Invalid bus stop please check your data', 422));
     }
     const { title, description, busrespect, address, creator } = req.body;
-     try {
+     
+    try {
         const createdbusstop= await BusStop.create({
          title:title,
          description: description,

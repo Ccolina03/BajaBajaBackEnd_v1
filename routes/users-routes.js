@@ -5,14 +5,18 @@ const usersControllers=require('../controllers/users-controllers');
 
 const router = express.Router();
 
-router.get('/',usersControllers.getUsers);
+//router.get('/',usersControllers.getUsers);
 
 router.post('/signup', [
-    check('name').not().isEmpty(),
-    check('email').normalizeEmail().isEmail(),
-    check('password').isLength({min:6})
-],
-usersControllers.signUp );
+    check('name1')
+      .not()
+      .isEmpty(),
+    check('email')
+      .normalizeEmail() 
+      .isEmail(),
+    check('password').isLength({ min: 6 })
+  ],
+usersControllers.signup );
  
 router.post('/login',usersControllers.login );
 
