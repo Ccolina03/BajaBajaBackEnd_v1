@@ -1,33 +1,24 @@
+const axios = require("axios");
+const API_LINK = "https://api.mapbox.com/geocoding/v5/mapbox.places";
+const API_KEY = process.env.pk.eyJ1IjoiY21jb2xpbmEiLCJhIjoiY2xhenpzc3BoMDdsbTNycGZycmN1YjB2dCJ9.qgSyvGe_E3I-U8VJEH191A;
+//Optional, you can ignore the PARAM
+const PARAM = "&autocomplete=true&fuzzyMatch=false";
+ 
+const getCoordsForAddress = async (address) => {
+  const searchText = encodeURIComponent(address);
+  const urlForGeoCode = `${API_LINK}/${searchText}.json?access_token=${pk.eyJ1IjoiY21jb2xpbmEiLCJhIjoiY2xhenpzc3BoMDdsbTNycGZycmN1YjB2dCJ9.qgSyvGe_E3I-U8VJEH191A}${PARAM}`;
+ 
+  const response = await axios.get(urlForGeoCode);
+ 
+  //this place will have no latitude and longitude 
+  //(since we return undefine.)
+  if (!response.data.features.length) return undefined;
+ 
+  const coordinates = response.data.features[0].center;
+  return {
+    lat: coordinates[1],
+    lng: coordinates[0]
+  };
+};
 
-const axios = require('axios');
-const HttpError = require('../models/http-error');
-
-const API_KEY = 'AIzaSyCj-NmNz8N3I82o-EdiklIC3FaDR0ItbSI';
-
-async function getCoordsForAddress(address) {
-    const response = await axios.get(
-        'https://maps.googleapis.com/maps/api/geocode/json', {
-          params: {
-            address: encodeURIComponent(address),
-            key: API_KEY
-          }
-        }
-      );
-    
-      const data = response.data;
-    
-      if (!data || data.status === 'ZERO_RESULTS') {
-        const error = new HttpError(
-          'Could not find location for the specified address.',
-          422
-        );
-        throw error;
-      }
-    
-      const coordinates = data.results[0].geometry.location;
-    
-      return coordinates;
-    };
-
-    module.exports = getCoordsForAddress;
-    
+module.exports = getCoordsForAddress;

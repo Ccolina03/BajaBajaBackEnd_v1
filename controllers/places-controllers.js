@@ -1,4 +1,4 @@
-const {v4:uuidv4}= require('uuid');
+
 const HttpError = require('../models/http-error');
 const express= require ('express');
 const mongoose=require('mongoose')
@@ -22,31 +22,56 @@ const getPlaceById = async (req, res, next) => {
 
     if (!bus_stop) {
       const error= new HttpError('No bus stop found for the provided ID.', 404);
-      console.error(bus_stop)
+
       return next(error); 
     }
   
     res.json({bus_stop: bus_stop.toObject({getters: true })});
   };
 
-const getPlacesByCreatorId = async (req, res, next)=> {
-    const creatorId = req.params.uid;
+//   const getPlacesByCreatorId = async (req, res, next)=> {
+//     const creatorId = req.params.uid;
     
-    let bus_stops;
-    try {
-      bus_stops = await BusStop.find({creator: creatorId})
-    } catch (erro) {
-      const error = new HttpError("Could not find the specified creatorId", 500);
-      return next(error);
-    }
-    if (!bus_stops || bus_stops.length===0) {
-        return next(
-          new HttpError('Could not find bus stops for the provide user id', 404)
-          );
-    }
+//     console.error(creatorId)
+//     let userStops;
+//     try {
+//       userStops = await User.findById(creatorId).populate('bus_stops') //Find specific bus_stops part from collection
+//     } catch (erro) {
+//       console.error(erro)
+//       const error = new HttpError("Could not find the specified creatorId", 500);
+//       return next(error);
+//     }
+//     if (!userStops || userStops.bus_stops.length===0) {
+//         return next(
+//           new HttpError('Could not find bus stops for the provide user id', 404)
+//           );
+//     }
 
-    res.json({bus_stops: bus_stops.map(bus_stops => bus_stops.toObject({getters:true}))});
+//     res.json({bus_stops: userStops.bus_stops.map(bus_stops => bus_stops.toObject({getters:true}))});
+// };
+
+const getPlacesByCreatorId = async (req, res, next)=> {
+  const creatorId = req.params.uid;
+  
+  let bus_stops;
+  try {
+    bus_stops = await BusStop.find({creator: creatorId})
+    console.log(bus_stops)
+   
+  } catch (erro) {
+    const error = new HttpError("Could not find the specified creatorId", 500);
+    return next(error);
+}
+  if (!bus_stops || bus_stops.length===0) {
+      return next(
+        new HttpError('Could not find bus stops for the provide user id', 404)
+        );
+  }
+
+  res.json({bus_stops: bus_stops.map(bus_stops => bus_stops.toObject({getters:true}))});
+
 };
+
 
 const createPlace = async (req, res, next) => {
     const errors = validationResult(req);
@@ -54,13 +79,21 @@ const createPlace = async (req, res, next) => {
         return next(new HttpError ('Invalid bus stop please check your data', 422));
     }
     const { title, description, busrespect, address, creator } = req.body;
-     
+
+
+//default coordinates:
+let coordinates;
+coordinates= {
+  lat: -12.086158,
+  lng:  -76.898019
+}
 // Initial way of saving in database without too much problem
 const createdPlace = new BusStop({
   title,
   description,
   busrespect,
-  address,
+  image: 'https://images.unsplash.com/photo-1585172162477-d52fa4ad9413?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1333&q=80',
+  location: coordinates,
   creator
 });
 
@@ -73,6 +106,7 @@ try {
 }
 
 if (!user) {
+  console.error(user)
   const error = new HttpError('Could not find user for provided id', 404);
   return next(error);
 }
@@ -140,16 +174,17 @@ res.status(201).json({bus_stop: createdPlace });
 
 const deletePlace = async (req, res, next) => {
     const placeId = req.params.pid;
-
-    let bus_stop;
+    console.error(placeId)
+    let bus__stop;
     try {
-      bus_stop = await BusStop.findById(placeId).populate('creator');
+      bus__stop = await BusStop.findById(placeId).populate('creator');
+      console.error(bus__stop)
     } catch (err) {
       const error = new HttpError('Bus stop could not be deleted. Try again later. ', 500);
       return next(error);
     }
 
-    if (!bus_stop) {
+    if (!bus__stop) {
       const error = new HttpError("No bus stop has this id. Try with a different id.", 404);
       return next(error);
     }
@@ -157,12 +192,11 @@ const deletePlace = async (req, res, next) => {
     try {
       const sess = await mongoose.startSession();
       sess.startTransaction();
-      await BusStop.deleteMany({ session: sess });
-      BusStop.creator.bus_stop.pull(bus_stop);
-      await bus_stop.creator.save({ session: sess });
+      await bus__stop.remove({ session: sess });
+      bus__stop.creator.places.pull(bus__stop);
+      await bus__stop.creator.save({ session: sess });
       await sess.commitTransaction();
     } catch (err) {
-      console.error(err)
       const error = new HttpError(
         'Something went wrong, could not delete place.',
         500

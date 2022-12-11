@@ -1,0 +1,7 @@
+{
+    "env": {
+        "DB_USER":"peruano",
+        "DB_PASSWORD": "boliviano",
+        "DB_NAME": "BAJABAJAv3"
+    }
+}
