@@ -40,7 +40,7 @@ url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.
 
 mongoose.connect(url, {useNewUrlParser: true}).then(()=>{
     console.log("Connected to database")
-    app.listen(5000);
+    app.listen(process.env.PORT || 5000);
 }).catch(erro => {
     console.log(erro)
 });
