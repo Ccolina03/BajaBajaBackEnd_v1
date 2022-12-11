@@ -1,6 +1,5 @@
 
 const HttpError = require('../models/http-error');
-const express= require ('express');
 const mongoose=require('mongoose')
 
 const { validationResult } = require('express-validator');
@@ -92,6 +91,7 @@ const createdPlace = new BusStop({
   title,
   description,
   busrespect,
+  address,
   image: 'https://images.unsplash.com/photo-1585172162477-d52fa4ad9413?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1333&q=80',
   location: coordinates,
   creator

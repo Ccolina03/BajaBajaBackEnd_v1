@@ -36,7 +36,7 @@ app.use((error, req, res, next) =>{
 });
 
 
-url = 'mongodb+srv://Ccolina03:carl0sgmail@cluster0.hw664bg.mongodb.net/BajaBaja?retryWrites=true&w=majority'
+url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.hw664bg.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
 
 mongoose.connect(url, {useNewUrlParser: true}).then(()=>{
     console.log("Connected to database")
