@@ -2,6 +2,7 @@
     "env": {
         "DB_USER":"Ccolina03",
         "DB_PASSWORD": "carl0sgmail",
-        "DB_NAME": "BajaBaja"
+        "DB_NAME": "BajaBaja",
+        "POST": "3000"
     }
 }
