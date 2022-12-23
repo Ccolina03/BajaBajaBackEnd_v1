@@ -101,17 +101,16 @@ let user;
 try {
   user = await User.findById(creator);
 } catch (err) {
-  const error = new HttpError('Creating place failed, please try again', 500);
+  const error = new HttpError('Creating bus stop failed, please try again', 500);
   return next(error);
 }
 
 if (!user) {
   console.error(user)
-  const error = new HttpError('Could not find user for provided id', 404);
+  const error = new HttpError('Could not find the user for the provided id', 404);
   return next(error);
 }
-
-console.log(user);
+;
 
 try {
   const sess = await mongoose.startSession();
@@ -122,7 +121,7 @@ try {
   await sess.commitTransaction();
 } catch (err) {
   const error = new HttpError(
-    'Incorrect creatorId. Please try again.',
+    'Incorrect creator Id. Please try again.',
     500
   );
   return next(error);
@@ -165,7 +164,7 @@ res.status(201).json({bus_stop: createdPlace });
 
     try {await bus_stop.save();
     } catch (erro) {
-      const error = new HttpError("Failure saving the document in the database. Verify connection.", 500);
+      const error = new HttpError("Bus stop was not saved. Verify connection.", 500);
       return next(error);
     }
   
@@ -185,7 +184,7 @@ const deletePlace = async (req, res, next) => {
     }
 
     if (!bus__stop) {
-      const error = new HttpError("No bus stop has this id. Try with a different id.", 404);
+      const error = new HttpError("Incorrect id. Try again later.", 404);
       return next(error);
     }
 

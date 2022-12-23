@@ -23,7 +23,7 @@ const signup = async (req, res, next) => {
     if (!errors.isEmpty()) {
       console.error(errors);
       return next(
-        new HttpError('Invalid inputs passed, data does not pass the validation tests.', 422)
+        new HttpError('Invalid inputs. Try again', 422)
       );
     }
     const { name1 , email, password} = req.body;
@@ -84,7 +84,7 @@ const login = async (req, res, next) => {
       return next(error);
     }
     
-    res.json({message:"Logged IN", user: existingUser.toObject({getters:true})})
+    res.json({message:"Logged In", user: existingUser.toObject({getters:true})})
 };
 
 exports.getUsers= getUsers;
