@@ -15,8 +15,9 @@ const userSchema = new Schema({
 
     places: [{
       type: mongoose.Types.ObjectId, required: true, ref: 'BusStop'
-    }]
+    }],
 
+    //Could try put karma here and indicate there that that busrespect can only have one karma, but karma can have many busrespect.
     //future busrespect karma which will indicate the amount of busrespect you have indicated.
 }
 );
